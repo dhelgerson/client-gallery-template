@@ -111,8 +111,9 @@ npm run dev      # build + serve at http://localhost:8080
 
 ## CI/CD details (`deploy.yml`)
 
-1. **Enable Pages (first run)** — tries `POST /repos/…/pages` with
-   `build_type=workflow`; if the token can't, run once yourself:
+1. **Pages must be enabled once, from your side** — GitHub forbids the Actions
+   token from creating the Pages site (403). `scripts/new-client.sh` does this
+   automatically; for a manually created repo, run once:
    `gh api -X POST repos/<owner>/<repo>/pages -f build_type=workflow`
 2. **`build/releases.mjs`** — for each collection's `release` (a tag or
    `"latest"`), lists release assets via the GitHub API →

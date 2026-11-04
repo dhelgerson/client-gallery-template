@@ -50,9 +50,18 @@ if [[ -z "$TEMPLATE" ]]; then
 fi
 
 NAME="gallery-$SLUG"
+TEMPLATE_OWNER="${TEMPLATE%%/*}"
 echo "→ creating $NAME from template $TEMPLATE" >&2
 gh repo create "$NAME" --template "$TEMPLATE" --public "${ORG[@]}" --clone
 cd "$NAME"
+
+# Enable Pages now, with YOUR credentials — the Actions token is not allowed
+# to create the Pages site (403), so this cannot be done inside the workflow.
+PAGES_OWNER="${ORG[1]:-$TEMPLATE_OWNER}"
+echo "→ enabling GitHub Pages (workflow build type)" >&2
+gh api -X POST "repos/$PAGES_OWNER/$NAME/pages" -f build_type=workflow >/dev/null 2>&1 \
+  && echo "   ✓ Pages enabled" >&2 \
+  || echo "   ! could not enable — run:  gh api -X POST repos/$PAGES_OWNER/$NAME/pages -f build_type=workflow" >&2
 
 echo
 echo "✓ ./$NAME ready. Next steps:"
