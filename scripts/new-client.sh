@@ -40,7 +40,9 @@ if ! command -v gh >/dev/null; then
 fi
 
 if [[ -z "$TEMPLATE" ]]; then
-  TEMPLATE="$(gh repo view --json owner,name --jq '.owner.login + "/" + .name' 2>/dev/null || true)"
+  # detect from the origin URL of the repo this script lives in (works from any cwd)
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+  TEMPLATE="$(git -C "$SCRIPT_DIR" remote get-url origin 2>/dev/null | sed -E 's#(git@github\.com[:/]|https?://github\.com/)##; s#\.git$##')"
 fi
 if [[ -z "$TEMPLATE" ]]; then
   echo "could not detect the template repo — pass --template owner/repo" >&2
