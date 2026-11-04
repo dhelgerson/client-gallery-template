@@ -37,13 +37,15 @@ jobs:
           node-version: 22
 
       # One-time convenience: turn on Pages (workflow build type) on the first
-      # run. Fails silently when Pages is already enabled or the token lacks
-      # rights — see README for the manual one-liner.
+      # run. Skips silently when Pages is already enabled; if the token lacks
+      # rights, see README for the manual one-liner.
       - name: Enable GitHub Pages (first run only)
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh api -X POST "/repos/$GITHUB_REPOSITORY/pages" -f build_type=workflow
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/pages" >/dev/null 2>&1 \
+            || gh api -X POST "/repos/$GITHUB_REPOSITORY/pages" -f build_type=workflow
 
       - name: Resolve full-res download links from Releases
         env:
